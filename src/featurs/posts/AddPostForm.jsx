@@ -1,21 +1,51 @@
 import React, {useState} from 'react';
-import {Button, Container, Form, InputGroup} from "react-bootstrap";
-import {useDispatch} from "react-redux";
-import { addPost } from './postsSlice.js';
+import {Button, Col, Container, Form, InputGroup} from "react-bootstrap";
+import {useDispatch, useSelector} from "react-redux";
+import {addPost} from './postsSlice.js';
 
 const AddPostForm = () => {
     const dispatch = useDispatch()
 
     const [titleValue, setTitleValue] = useState('')
     const [contentValue, setContentValue] = useState('')
+    const [userId, setUserId] = useState('')
+
+    const users = useSelector(state => state.users)
+
+    const onCreateBtnClick = () => {
+        dispatch(addPost(titleValue, contentValue, userId))
+        setTitleValue('')
+        setContentValue('')
+    }
+
+    const canSave = Boolean(titleValue) && Boolean(contentValue) && Boolean(userId)
+
+    const usersOptions = users.map(user => (
+        <option key={user.id} value={user.id}>{user.name}</option>
+    ))
 
     return (
-        <Container className='bg-light border border-dark-subtle rounded mb-5 py-3 d-flex flex-column align-items-center'>
+        <Container
+            className='bg-light border border-dark-subtle rounded mb-5 py-3 d-flex flex-column align-items-center'>
             <Form.Label htmlFor="basic-url">
                 <h5>Type a new post</h5>
             </Form.Label>
 
-            <InputGroup className="mb-3 w-50">
+            <InputGroup className='mb-3'>
+                <InputGroup.Text id="basic-addon3">
+                    Select User
+                </InputGroup.Text>
+                <Form.Select
+                    aria-label="Default select example"
+                    value={userId}
+                    onChange={(e) => setUserId(e.target.value)}
+                >
+                    <option value=""></option>
+                    {usersOptions}
+                </Form.Select>
+            </InputGroup>
+
+            <InputGroup className="mb-3">
                 <InputGroup.Text id="basic-addon3">
                     Post title
                 </InputGroup.Text>
@@ -41,11 +71,8 @@ const AddPostForm = () => {
             <Button
                 className='mt-4'
                 variant='success'
-                onClick={() => {
-                    dispatch(addPost(titleValue, contentValue))
-                    setTitleValue('')
-                    setContentValue('')
-                }}
+                onClick={onCreateBtnClick}
+                disabled={!canSave}
             >
                 Create
             </Button>

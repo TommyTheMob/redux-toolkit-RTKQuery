@@ -1,9 +1,8 @@
 import React, {useState} from 'react';
 import {Button, Container, Form, InputGroup} from "react-bootstrap";
 import {editPost} from "./postsSlice.js";
-import {nanoid} from "@reduxjs/toolkit";
 import {useDispatch, useSelector} from "react-redux";
-import {Link, useParams, useNavigate} from "react-router-dom";
+import {useParams, useNavigate} from "react-router-dom";
 
 const EditPost = () => {
     const dispatch = useDispatch()
