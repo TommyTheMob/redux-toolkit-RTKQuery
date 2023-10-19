@@ -1,8 +1,8 @@
 import React from 'react';
 import {Container} from "react-bootstrap";
-import Counter from "../components/counter/Counter.jsx";
+import Counter from "./Counter.jsx";
 
-const MainPage = () => {
+const CounterPage = () => {
     return (
         <Container className='text-center'>
             <Counter />
@@ -10,4 +10,4 @@ const MainPage = () => {
     );
 };
 
-export default MainPage;
+export default CounterPage;
