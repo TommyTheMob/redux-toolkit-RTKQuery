@@ -28,12 +28,8 @@ const SinglePostPage = () => {
                     <Card.Text>
                         {post.content}
                     </Card.Text>
-                    <Link className='me-1' to='/posts'>
-                        <Button variant="primary">Go to posts</Button>
-                    </Link>
-                    <Link to={`/editPost/${post.id}`}>
-                        <Button variant="secondary">Edit</Button>
-                    </Link>
+                    <Button as={Link} to='/posts' className='me-1' variant="primary">Go to posts</Button>
+                    <Button as={Link} to={`/editPost/${post.id}`} variant="secondary">Edit</Button>
                 </Card.Body>
                 <Card.Footer className="text-muted">2 days ago</Card.Footer>
             </Card>

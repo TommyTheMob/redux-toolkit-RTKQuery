@@ -22,12 +22,8 @@ const PostsList = () => {
                         <Card.Text>
                             {post.content}
                         </Card.Text>
-                        <Link className='me-1' to={`/posts/${post.id}`}>
-                            <Button variant="primary">See post</Button>
-                        </Link>
-                        <Link to={`/editPost/${post.id}`}>
-                            <Button variant="secondary">Edit</Button>
-                        </Link>
+                        <Button className='me-2' as={Link} to={`/posts/${post.id}`} variant="primary">See post</Button>
+                        <Button as={Link} to={`/editPost/${post.id}`} variant="secondary">Edit</Button>
                     </Card.Body>
                 </Card>
 

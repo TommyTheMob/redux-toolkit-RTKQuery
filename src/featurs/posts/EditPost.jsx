@@ -53,17 +53,26 @@ const EditPost = () => {
                 />
             </InputGroup>
 
-
-            <Button
-                className='mt-4'
-                variant='success'
-                onClick={() => {
-                    dispatch(editPost(post.id, titleValue, contentValue))
-                    navigate(-1)
-                }}
-            >
-                Save
-            </Button>
+            <Container className='mt-4 text-center'>
+                <Button
+                    className='me-2'
+                    variant='success'
+                    onClick={() => {
+                        dispatch(editPost(post.id, titleValue, contentValue))
+                        navigate(-1)
+                    }}
+                >
+                    Save
+                </Button>
+                <Button
+                    variant='secondary'
+                    onClick={() => {
+                        navigate(-1)
+                    }}
+                >
+                    Go back
+                </Button>
+            </Container>
 
         </Container>
     );
