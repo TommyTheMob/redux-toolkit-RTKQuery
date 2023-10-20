@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import {Button, Container, Form, InputGroup} from "react-bootstrap";
-import {editPost} from "./postsSlice.js";
+import {editPostThroughServer, selectPostById} from "./postsSlice.js";
 import {useDispatch, useSelector} from "react-redux";
 import {useParams, useNavigate} from "react-router-dom";
 
@@ -9,7 +9,7 @@ const EditPost = () => {
     const navigate = useNavigate()
     const {postId} = useParams()
 
-    const post = useSelector(state => state.posts.find(post => post.id === postId))
+    const post = useSelector(state => selectPostById(state, Number(postId)))
 
     if (!post) {
         return (
@@ -21,6 +21,23 @@ const EditPost = () => {
 
     const [titleValue, setTitleValue] = useState(post.title)
     const [contentValue, setContentValue] = useState(post.content)
+    const [addRequestStatus, setAddRequestStatus] = useState('idle')
+
+    const canSave = addRequestStatus === 'idle'
+
+    const onSaveBtnClick = async () => {
+        if (canSave) {
+            try {
+                setAddRequestStatus('pending')
+                await dispatch(editPostThroughServer({postId: post.id, content: contentValue, title: titleValue})).unwrap()
+                navigate(-1)
+            } catch (err) {
+                console.error('Failed to edit post', err)
+            } finally {
+                setAddRequestStatus('idle')
+            }
+        }
+    }
 
     return (
         <Container
@@ -56,10 +73,8 @@ const EditPost = () => {
                 <Button
                     className='me-2'
                     variant='success'
-                    onClick={() => {
-                        dispatch(editPost(post.id, titleValue, contentValue))
-                        navigate(-1)
-                    }}
+                    disabled={!canSave}
+                    onClick={onSaveBtnClick}
                 >
                     Save
                 </Button>

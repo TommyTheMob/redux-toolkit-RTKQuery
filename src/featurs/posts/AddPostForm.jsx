@@ -1,24 +1,37 @@
 import React, {useState} from 'react';
-import {Button, Col, Container, Form, InputGroup} from "react-bootstrap";
+import {Button, Container, Form, InputGroup} from "react-bootstrap";
 import {useDispatch, useSelector} from "react-redux";
-import {addPost} from './postsSlice.js';
+import {addPostToServer} from './postsSlice.js';
 
 const AddPostForm = () => {
     const dispatch = useDispatch()
 
     const [titleValue, setTitleValue] = useState('')
     const [contentValue, setContentValue] = useState('')
-    const [userId, setUserId] = useState('')
+    const [userId, setUserId] = useState(0)
+    const [addRequestStatus, setAddRequestStatus] = useState('idle')
 
     const users = useSelector(state => state.users)
 
-    const onCreateBtnClick = () => {
-        dispatch(addPost(titleValue, contentValue, userId))
-        setTitleValue('')
-        setContentValue('')
-    }
+    const canSave = Boolean(titleValue) && Boolean(contentValue) && Boolean(userId) && addRequestStatus === 'idle'
 
-    const canSave = Boolean(titleValue) && Boolean(contentValue) && Boolean(userId)
+
+    const onCreateBtnClick = async () => {
+        if (canSave) {
+            try {
+                setAddRequestStatus('pending')
+                await dispatch(addPostToServer({titleValue, contentValue, userId})).unwrap()
+                setTitleValue('')
+                setContentValue('')
+                setUserId(0)
+            } catch (err) {
+                console.error('Failed to save post', err)
+            } finally {
+                setAddRequestStatus('idle')
+            }
+
+        }
+    }
 
     const usersOptions = users.map(user => (
         <option key={user.id} value={user.id}>{user.name}</option>
@@ -38,7 +51,7 @@ const AddPostForm = () => {
                 <Form.Select
                     aria-label="Default select example"
                     value={userId}
-                    onChange={(e) => setUserId(e.target.value)}
+                    onChange={(e) => setUserId(Number(e.target.value))}
                 >
                     <option value=""></option>
                     {usersOptions}

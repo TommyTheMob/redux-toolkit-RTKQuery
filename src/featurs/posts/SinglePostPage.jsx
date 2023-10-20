@@ -5,13 +5,13 @@ import {Link, useParams} from "react-router-dom";
 import PostAuthor from "./postAuthor.jsx";
 import TimeAgo from "./TimeAgo.jsx";
 import ReactionButtons from "./ReactionButtons.jsx";
+import {selectPostById} from "./postsSlice.js";
 
 
 const SinglePostPage = () => {
     const {postId} = useParams()
 
-
-    const post = useSelector(state => state.posts.find(post => post.id === postId))
+    const post = useSelector(state => selectPostById(state, Number(postId)))
 
     if (!post) {
         return (
