@@ -1,8 +1,14 @@
 import React from 'react';
-import {Container, Nav, Navbar, NavDropdown} from "react-bootstrap";
+import {Badge, Container, Nav, Navbar, NavDropdown} from "react-bootstrap";
 import {Link, Outlet} from "react-router-dom";
+import {useSelector} from "react-redux";
+import {selectAllNotifications} from "../featurs/notifications/notificationsSlice.js";
 
 const AppNavbar = () => {
+    const allNotifications = useSelector(selectAllNotifications)
+
+    const numUnreadNotifications = allNotifications.filter(notification => !notification.read).length
+
     return (
         <>
             <Navbar expand="lg" className="bg-body-tertiary">
@@ -25,6 +31,13 @@ const AppNavbar = () => {
                             <NavDropdown title="Posts" id="basic-nav-dropdown">
                                 <NavDropdown.Item as={Link} to="/posts">Posts list</NavDropdown.Item>
                             </NavDropdown>
+                            <NavDropdown title="Users" id="basic-nav-dropdown">
+                                <NavDropdown.Item as={Link} to="/users">Users list</NavDropdown.Item>
+                            </NavDropdown>
+                            <Nav.Link as={Link} to="/notifications">
+                                Notifications
+                                <Badge pill className='align-top ms-1' bg="primary">{numUnreadNotifications}</Badge>
+                            </Nav.Link>
                         </Nav>
                     </Navbar.Collapse>
                 </Container>

@@ -50,7 +50,15 @@ const PostsList = () => {
     let content
 
     if (postsStatus === 'loading') {
-        content = <PostSkeleton />
+        content =
+            <>
+                <PostSkeleton />
+                <PostSkeleton />
+                <PostSkeleton />
+                <PostSkeleton />
+                <PostSkeleton />
+                <PostSkeleton />
+            </>
     } else if (postsStatus === 'succeeded') {
         const orderedPosts = posts.concat().sort((a, b) => b.date.localeCompare(a.date))
 
