@@ -6,24 +6,33 @@ import PostAuthor from "./postAuthor.jsx";
 import TimeAgo from "./TimeAgo.jsx";
 import ReactionButtons from "./ReactionButtons.jsx";
 import {selectPostById} from "./postsSlice.js";
+import {useGetSinglePostQuery} from "../api/apiSlice.js";
+import PostSkeleton from "./PostSkeleton.jsx";
 
 
 const SinglePostPage = () => {
-    const {postId} = useParams()
+    let {postId} = useParams()
+    postId = Number(postId)
 
-    const post = useSelector(state => selectPostById(state, Number(postId)))
+    // const post = useSelector(state => selectPostById(state, Number(postId)))
+    //
+    // if (!post) {
+    //     return (
+    //         <Container className='text-center'>
+    //             <h3>Post not found!</h3>
+    //         </Container>
+    //     )
+    // }
 
-    if (!post) {
-        return (
-            <Container className='text-center'>
-                <h3>Post not found!</h3>
-            </Container>
-        )
-    }
+    const { data, isFetching, isSuccess } = useGetSinglePostQuery(postId)
 
-    return (
-        <Container className='text-center'>
-            <h1>Post details</h1>
+    let content
+    if (isFetching) {
+        content = <PostSkeleton />
+    } else if (isSuccess) {
+        const [post] = data
+
+        content =
             <Card className="text-center mt-2">
                 <Card.Header>
                     <TimeAgo timestamp={post.date} />
@@ -43,6 +52,13 @@ const SinglePostPage = () => {
                     <ReactionButtons post={post}/>
                 </Card.Footer>
             </Card>
+    }
+
+    return (
+        <Container className='text-center'>
+            <h1>Post details</h1>
+
+            {content}
         </Container>
     );
 };

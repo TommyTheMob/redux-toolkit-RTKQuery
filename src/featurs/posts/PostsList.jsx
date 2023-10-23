@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useMemo} from 'react';
 import {Button, Card, Container} from "react-bootstrap";
 import {useDispatch, useSelector} from "react-redux";
 import AddPostForm from "./AddPostForm.jsx";
@@ -8,11 +8,12 @@ import TimeAgo from "./TimeAgo.jsx";
 import ReactionButtons from "./ReactionButtons.jsx";
 import {selectAllPosts, fetchPosts} from './postsSlice.js'
 import PostSkeleton from "./PostSkeleton.jsx";
+import { useGetPostsQuery } from '../api/apiSlice.js'
 
 
-const PostExcerpt = ({ post }) => {
+const PostExcerpt = ({ post, fetching }) => {
     return (
-        <Card key={post.id} className='mb-4' bg='light'>
+        <Card key={post.id} className={`mb-4`} bg={fetching ? 'secondary' : 'light'}>
             <Card.Header>
                 <TimeAgo timestamp={post.date}/>
             </Card.Header>
@@ -24,32 +25,48 @@ const PostExcerpt = ({ post }) => {
                 <Card.Text>
                     {post.content}
                 </Card.Text>
-                <Button className='me-2' as={Link} to={`/posts/${post.id}`} variant="primary">See post</Button>
-                <Button as={Link} to={`/editPost/${post.id}`} variant="secondary">Edit</Button>
+                <Button className='me-2' as={Link} to={`/posts/${post.id}`} variant={fetching ? "outline-secondary" : "primary"}>See post</Button>
+                <Button as={Link} to={`/editPost/${post.id}`} variant={fetching ? "outline-secondary" : "secondary"}>Edit</Button>
             </Card.Body>
             <Card.Footer>
-                <ReactionButtons post={post}/>
+                <ReactionButtons post={post} />
             </Card.Footer>
         </Card>
     )
 }
 
 const PostsList = () => {
-    const dispatch = useDispatch()
-    const posts = useSelector(selectAllPosts)
+    // const dispatch = useDispatch()
+    // const posts = useSelector(selectAllPosts)
+    //
+    // const postsStatus = useSelector(state => state.posts.status)
+    // const error = useSelector(state => state.posts.error)
+    //
+    // useEffect(() => {
+    //     if (postsStatus === 'idle') {
+    //         dispatch(fetchPosts())
+    //     }
+    // }, [dispatch, postsStatus])
 
-    const postsStatus = useSelector(state => state.posts.status)
-    const error = useSelector(state => state.posts.error)
+    const {
+        data: posts = [],
+        isLoading,
+        isFetching,
+        isSuccess,
+        isError,
+        error,
+        refetch
+    } = useGetPostsQuery()
 
-    useEffect(() => {
-        if (postsStatus === 'idle') {
-            dispatch(fetchPosts())
-        }
-    }, [dispatch, postsStatus])
+    const sortedPosts = useMemo(() => {
+        const sortedPosts = posts.concat()
+        sortedPosts.sort((a, b) => b.date.localeCompare(a.date))
+        return sortedPosts
+    }, [posts])
 
     let content
 
-    if (postsStatus === 'loading') {
+    if (isLoading) {
         content =
             <>
                 <PostSkeleton />
@@ -59,14 +76,14 @@ const PostsList = () => {
                 <PostSkeleton />
                 <PostSkeleton />
             </>
-    } else if (postsStatus === 'succeeded') {
-        const orderedPosts = posts.concat().sort((a, b) => b.date.localeCompare(a.date))
-
-        content = orderedPosts.map(post => (
-            <PostExcerpt key={post.id} post={post}/>
+    } else if (isSuccess) {
+        const renderedPosts =  sortedPosts.map(post => (
+            <PostExcerpt key={post.id} post={post} fetching={isFetching}/>
         ))
-    } else if (postsStatus === 'failed') {
-        content = <div>{error}</div>
+
+        content = renderedPosts
+    } else if (isError) {
+        content = <div>{error.toString()}</div>
     }
 
     return (
@@ -75,6 +92,7 @@ const PostsList = () => {
 
             <AddPostForm/>
 
+            <Button className='mb-2' variant={"secondary"} onClick={refetch}>Refetch posts</Button>
             {content}
         </Container>
     );

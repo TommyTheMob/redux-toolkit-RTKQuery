@@ -2,33 +2,38 @@ import React, {useState} from 'react';
 import {Button, Container, Form, InputGroup} from "react-bootstrap";
 import {useDispatch, useSelector} from "react-redux";
 import {addPostToServer} from './postsSlice.js';
+import {useAddNewPostMutation} from "../api/apiSlice.js";
 
 const AddPostForm = () => {
-    const dispatch = useDispatch()
+    // const dispatch = useDispatch()
 
     const [titleValue, setTitleValue] = useState('')
     const [contentValue, setContentValue] = useState('')
     const [userId, setUserId] = useState(0)
-    const [addRequestStatus, setAddRequestStatus] = useState('idle')
+    // const [addRequestStatus, setAddRequestStatus] = useState('idle')
 
     const users = useSelector(state => state.users)
 
-    const canSave = Boolean(titleValue) && Boolean(contentValue) && Boolean(userId) && addRequestStatus === 'idle'
+    const [addNewPost, {isLoading}] = useAddNewPostMutation()
+
+    const canSave = Boolean(titleValue) && Boolean(contentValue) && Boolean(userId) && !isLoading
 
 
     const onCreateBtnClick = async () => {
         if (canSave) {
             try {
-                setAddRequestStatus('pending')
-                await dispatch(addPostToServer({titleValue, contentValue, userId})).unwrap()
+                // setAddRequestStatus('pending')
+                // await dispatch(addPostToServer({titleValue, contentValue, userId})).unwrap()
+                await addNewPost({title: titleValue, content: contentValue, user: userId, date: new Date().toISOString(), reactions: {thumbsUp: 0, hooray: 0, heart: 0, rocket: 0, eyes: 0}}).unwrap()
                 setTitleValue('')
                 setContentValue('')
                 setUserId(0)
             } catch (err) {
                 console.error('Failed to save post', err)
-            } finally {
-                setAddRequestStatus('idle')
             }
+            // finally {
+            //     setAddRequestStatus('idle')
+            // }
 
         }
     }

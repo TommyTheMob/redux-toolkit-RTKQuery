@@ -34,7 +34,7 @@ const ReactionButtons = ({ post }) => {
     const reactionButtons = Object.entries(reactionEmoji)
         .map(([name, emoji]) => (
             <Button
-                className='m-1'
+                className={`m-1`}
                 size='sm'
                 variant='outline-secondary'
                 key={name}

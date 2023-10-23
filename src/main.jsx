@@ -10,7 +10,6 @@ import {fetchNotifications} from "./featurs/notifications/notificationsSlice.js"
 import {fetchPosts} from "./featurs/posts/postsSlice.js";
 
 store.dispatch(fetchUsers())
-store.dispatch(fetchPosts())
 store.dispatch(fetchNotifications())
 
 ReactDOM.createRoot(document.getElementById('root')).render(
