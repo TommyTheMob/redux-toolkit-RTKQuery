@@ -1,41 +1,25 @@
 import React, {useState} from 'react';
 import {Button, Container, Form, InputGroup} from "react-bootstrap";
-import {editPostThroughServer, selectPostById} from "./postsSlice.js";
-import {useDispatch, useSelector} from "react-redux";
 import {useParams, useNavigate} from "react-router-dom";
+import {useEditPostMutation, useGetSinglePostQuery} from "../api/apiSlice.js";
 
 const EditPost = () => {
-    const dispatch = useDispatch()
+    // const dispatch = useDispatch()
     const navigate = useNavigate()
-    const {postId} = useParams()
+    let {postId} = useParams()
+    postId = Number(postId)
 
-    const post = useSelector(state => selectPostById(state, Number(postId)))
+    const { data: post } = useGetSinglePostQuery(postId)
+    const [editPost, {isLoading}] = useEditPostMutation()
 
-    if (!post) {
-        return (
-            <Container className='text-center'>
-                <h3>Post not found!</h3>
-            </Container>
-        )
-    }
 
     const [titleValue, setTitleValue] = useState(post.title)
     const [contentValue, setContentValue] = useState(post.content)
-    const [addRequestStatus, setAddRequestStatus] = useState('idle')
-
-    const canSave = addRequestStatus === 'idle'
 
     const onSaveBtnClick = async () => {
-        if (canSave) {
-            try {
-                setAddRequestStatus('pending')
-                await dispatch(editPostThroughServer({postId: post.id, content: contentValue, title: titleValue})).unwrap()
-                navigate(-1)
-            } catch (err) {
-                console.error('Failed to edit post', err)
-            } finally {
-                setAddRequestStatus('idle')
-            }
+        if (titleValue && contentValue) {
+            await editPost({title: titleValue, content: contentValue, id: postId})
+            navigate(-1)
         }
     }
 
@@ -73,8 +57,8 @@ const EditPost = () => {
                 <Button
                     className='me-2'
                     variant='success'
-                    disabled={!canSave}
                     onClick={onSaveBtnClick}
+                    disabled={isLoading}
                 >
                     Save
                 </Button>

@@ -2,6 +2,7 @@ import React, {useState} from 'react';
 import {Button} from "react-bootstrap";
 import {addReactionThroughServer} from './postsSlice.js'
 import {useDispatch} from "react-redux";
+import {useAddReactionMutation} from "../api/apiSlice.js";
 
 const reactionEmoji = {
     thumbsUp: '👍',
@@ -12,23 +13,20 @@ const reactionEmoji = {
 }
 
 const ReactionButtons = ({ post }) => {
-    const dispatch = useDispatch()
-    const [addRequestStatus, setAddRequestStatus] = useState('idle')
+    const [addReaction] = useAddReactionMutation()
 
-    const canSave = addRequestStatus === 'idle'
+    const onAddReactionBtnClick = (name) => {
+        const reactions = Object.entries(post.reactions).map(([reaction, value]) => reaction === name
+            ? [reaction, value + 1]
+            : [reaction, value]
+        )
 
-    const onReactionClick = async (name) => {
-        if (canSave) {
-            try {
-                setAddRequestStatus('pending')
-                await dispatch(addReactionThroughServer({postId: post.id, name})).unwrap()
-            } catch (err) {
-                console.error('Failed to update reaction', err)
-            } finally {
-                setAddRequestStatus('idle')
-            }
-        }
+        let updatedReactions = {}
+        reactions.forEach(([reaction, value]) => {
+            updatedReactions[reaction] = value
+        })
 
+        addReaction({postId: post.id, reactions: updatedReactions})
     }
 
     const reactionButtons = Object.entries(reactionEmoji)
@@ -38,8 +36,7 @@ const ReactionButtons = ({ post }) => {
                 size='sm'
                 variant='outline-secondary'
                 key={name}
-                disabled={!canSave}
-                onClick={() => {onReactionClick(name)}}
+                onClick={() => onAddReactionBtnClick(name)}
             >
                 {emoji} {post.reactions[name]}
             </Button>

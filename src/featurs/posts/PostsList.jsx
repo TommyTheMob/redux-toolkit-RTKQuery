@@ -77,11 +77,9 @@ const PostsList = () => {
                 <PostSkeleton />
             </>
     } else if (isSuccess) {
-        const renderedPosts =  sortedPosts.map(post => (
+        content =  sortedPosts.map(post => (
             <PostExcerpt key={post.id} post={post} fetching={isFetching}/>
         ))
-
-        content = renderedPosts
     } else if (isError) {
         content = <div>{error.toString()}</div>
     }

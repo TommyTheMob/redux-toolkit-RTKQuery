@@ -1,28 +1,42 @@
-import {createAsyncThunk, createSlice} from "@reduxjs/toolkit";
+import {createEntityAdapter, createSelector} from "@reduxjs/toolkit";
+import {apiSlice} from "../api/apiSlice.js";
 
-// const initialState = [
-//     { id: 0, name: 'Tianna Jenkins' },
-//     { id: 1, name: 'Kevin Grant' },
-//     { id: 2, name: 'Madison Price' }
-// ]
+const usersAdapter = createEntityAdapter()
 
-const initialState = []
+const initialState = usersAdapter.getInitialState()
 
-export const fetchUsers = createAsyncThunk('users/fetchUsers', async () => {
-    const response = await fetch('https://8gk4w7-8080.csb.app/users')
-    return response.json()
-})
-
-export const usersSlice = createSlice({
-    name: 'users',
-    initialState,
-    reducers: {},
-    extraReducers: (builder) => {
-        builder.addCase(fetchUsers.fulfilled, (state, action) => {
-            return action.payload
+export const extendedApiSlice = apiSlice.injectEndpoints({
+    endpoints: builder => ({
+        getUsers: builder.query({
+            query: () => '/users',
+            transformResponse: responseData => {
+                return usersAdapter.setAll(initialState, responseData)
+            }
         })
-    }
+    })
 })
 
-export const selectAllUsers = state => state.users
-export const selectUserById = (state, userId) => state.users.find(user => user.id === userId)
+export const { useGetUsersQuery } = extendedApiSlice
+
+export const selectUsersResult = extendedApiSlice.endpoints.getUsers.select()
+
+const selectUsersData = createSelector(
+    selectUsersResult,
+    usersResult => usersResult.data
+)
+
+export const { selectAll: selectAllUsers, selectById: selectUserById } =
+    usersAdapter.getSelectors(state => selectUsersData(state) ?? initialState)
+
+// const emptyUsers = []
+//
+// export const selectAllUsers = createSelector(
+//     selectUsersResult,
+//     usersResult => usersResult?.data ?? emptyUsers
+// )
+//
+// export const selectUserById = createSelector(
+//     selectAllUsers,
+//     (state, userId) => userId,
+//     (users, userId) => users.find(user => user.id === userId)
+// )
